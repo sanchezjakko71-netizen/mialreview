@@ -1,0 +1,664 @@
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Source+Serif+4:wght@300;400;600&display=swap');
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  .reviewer-wrap {
+    font-family: 'Source Serif 4', serif;
+    background: var(--color-background-tertiary);
+    min-height: 100vh;
+    padding: 0 0 3rem;
+  }
+
+  .hero {
+    background: #1a1a2e;
+    color: #e8e0d0;
+    padding: 2.5rem 2rem 2rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: repeating-linear-gradient(45deg,
+        transparent,
+        transparent 30px,
+        rgba(255, 255, 255, 0.015) 30px,
+        rgba(255, 255, 255, 0.015) 31px);
+  }
+
+  .hero-sub {
+    font-size: 11px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: hsl(41, 87%, 12%);
+    margin-bottom: 0.5rem;
+    font-family: 'Source Serif 4', serif;
+    font-weight: 300;
+  }
+
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: #f5edd8;
+    letter-spacing: 1px;
+    position: relative;
+  }
+
+  .hero-divider {
+    width: 60px;
+    height: 2px;
+    background: hsl(41, 87%, 12%);
+    margin: 1rem auto 0.5rem;
+  }
+
+  .hero-desc {
+    font-size: 13px;
+    color: #9e9080;
+    font-weight: 300;
+    letter-spacing: 1px;
+  }
+
+  .toc-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 1rem 1.5rem;
+    background: var(--color-background-secondary);
+    border-bottom: 0.5px solid var(--color-border-tertiary);
+    justify-content: center;
+  }
+
+  .toc-pill {
+    font-size: 11px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    border: 0.5px solid var(--color-border-secondary);
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    background: var(--color-background-primary);
+    font-family: 'Source Serif 4', serif;
+    font-weight: 400;
+    transition: all 0.15s;
+  }
+
+  .toc-pill:hover,
+  .toc-pill.active {
+    background: #1a1a2e;
+    color: #f5edd8;
+    border-color: #1a1a2e;
+  }
+
+  .content-area {
+    padding: 1.5rem 1.25rem;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  .section-card {
+    background: var(--color-background-primary);
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-lg);
+    margin-bottom: 1.25rem;
+    overflow: hidden;
+    display: none;
+  }
+
+  .section-card.visible {
+    display: block;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 1rem 1.25rem;
+    cursor: pointer;
+    border-bottom: 0.5px solid var(--color-border-tertiary);
+    background: var(--color-background-secondary);
+    user-select: none;
+  }
+
+  .section-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    flex: 1;
+  }
+
+  .section-toggle {
+    font-size: 12px;
+    color: var(--color-text-tertiary);
+    transition: transform 0.2s;
+  }
+
+  .section-card.open .section-toggle {
+    transform: rotate(180deg);
+  }
+
+  .section-body {
+    display: none;
+    padding: 1.25rem;
+  }
+
+  .section-card.open .section-body {
+    display: block;
+  }
+
+  .topic {
+    margin-bottom: 1.25rem;
+    padding-bottom: 1.25rem;
+    border-bottom: 0.5px solid var(--color-border-tertiary);
+  }
+
+  .topic:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+
+  .topic-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: #1a1a2e;
+    margin-bottom: 0.6rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .topic-title::before {
+    content: '';
+    display: inline-block;
+    width: 3px;
+    height: 13px;
+    background: hsl(41, 87%, 12%);
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  .topic-body {
+    font-size: 13px;
+    color: var(--color-text-secondary);
+    line-height: 1.75;
+  }
+
+  .topic-body strong {
+    color: var(--color-text-primary);
+    font-weight: 500;
+  }
+
+  .key-terms {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 0.6rem;
+  }
+
+  .term {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-weight: 500;
+    font-family: 'Source Serif 4', serif;
+  }
+
+  .remember-box {
+    border-left: 3px solid hsl(41, 87%, 12%);
+    padding: 0.6rem 0.75rem;
+    margin-top: 0.75rem;
+    border-radius: 0 4px 4px 0;
+    background: var(--color-background-secondary);
+    font-size: 12px;
+    color: var(--color-text-secondary);
+    line-height: 1.6;
+  }
+
+  .remember-box b {
+    color: hsl(41, 87%, 12%);
+    font-weight: 500;
+  }
+
+  .quiz-btn {
+    display: block;
+    width: 100%;
+    text-align: center;
+    margin-top: 1.5rem;
+    padding: 0.75rem;
+    border: 0.5px solid var(--color-border-secondary);
+    border-radius: var(--border-radius-md);
+    font-size: 13px;
+    color: var(--color-text-secondary);
+    background: var(--color-background-secondary);
+    cursor: pointer;
+    font-family: 'Source Serif 4', serif;
+    transition: all 0.15s;
+  }
+
+  .quiz-btn:hover {
+    background: #1a1a2e;
+    color: #f5edd8;
+    border-color: #1a1a2e;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .hero {
+      background: #0d0d1f;
+    }
+
+    .topic-title {
+      color: hsl(41, 87%, 12%);
+    }
+  }
+</style>
+
+<div class="reviewer-wrap">
+  <div class="hero">
+    <p class="hero-sub">Study Guide</p>
+    <h1>MIAL Reviewer</h1>
+    <div class="hero-divider"></div>
+    <p class="hero-desc">Media and Information Literacy</p>
+  </div>
+
+  <div class="toc-bar" id="toc">
+    <button class="toc-pill active" onclick="showAll(this)">All topics</button>
+    <button class="toc-pill" onclick="filterSection('print', this)">Print Media</button>
+    <button class="toc-pill" onclick="filterSection('sources', this)">Info Sources</button>
+    <button class="toc-pill" onclick="filterSection('language', this)">Media Language</button>
+    <button class="toc-pill" onclick="filterSection('ethics', this)">Legal & Ethics</button>
+  </div>
+
+  <div class="content-area">
+
+    <!-- PRINT MEDIA -->
+    <div class="section-card visible open" data-group="print" id="card-print">
+      <div class="section-header" onclick="toggleCard('card-print')">
+        <div class="section-icon" style="background:#e8e0d0;">📰</div>
+        <span class="section-title">Print & Broadcast Media</span>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+
+        <div class="topic">
+          <div class="topic-title">Newspapers</div>
+          <div class="topic-body">
+            The oldest form of print media, newspapers are published daily or weekly and cover <strong>current events,
+              politics, sports, and local news</strong>. They follow journalistic standards such as accuracy, fairness,
+            and timeliness. Key elements include the <strong>headline, byline, dateline, lead paragraph, and
+              body</strong>.
+            <div class="key-terms">
+              <span class="term" style="background:#e8e0d0;color:#4a3c28;">Broadsheet</span>
+              <span class="term" style="background:#e8e0d0;color:#4a3c28;">Tabloid</span>
+              <span class="term" style="background:#e8e0d0;color:#4a3c28;">Editorial</span>
+              <span class="term" style="background:#e8e0d0;color:#4a3c28;">Op-Ed</span>
+            </div>
+          </div>
+          <div class="remember-box"><b>Remember:</b> News articles follow the <strong>inverted pyramid</strong>
+            structure — most important info first, least important last.</div>
+        </div>
+
+        <div class="topic">
+          <div class="topic-title">Magazines</div>
+          <div class="topic-body">
+            Published weekly, monthly, or quarterly, magazines target <strong>specific audiences and interests</strong>
+            (fashion, science, sports). They feature longer, in-depth articles, high-quality photos, and ads. Unlike
+            newspapers, they have a <strong>longer shelf life</strong> and focus on features rather than breaking news.
+            <div class="key-terms">
+              <span class="term" style="background:#e8e0d0;color:#4a3c28;">Feature article</span>
+              <span class="term" style="background:#e8e0d0;color:#4a3c28;">Periodical</span>
+              <span class="term" style="background:#e8e0d0;color:#4a3c28;">Target audience</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="topic">
+          <div class="topic-title">Broadcast Media</div>
+          <div class="topic-body">
+            Includes <strong>radio and television</strong>. It transmits audio and visual content to mass audiences
+            simultaneously. Broadcast media is regulated by government agencies (e.g., FCC in the US) and reaches
+            audiences in real time. Key types: <strong>news broadcasts, documentaries, entertainment shows, and public
+              service announcements (PSA)</strong>.
+            <div class="key-terms">
+              <span class="term" style="background:#e8e0d0;color:#4a3c28;">AM/FM Radio</span>
+              <span class="term" style="background:#e8e0d0;color:#4a3c28;">TV Network</span>
+              <span class="term" style="background:#e8e0d0;color:#4a3c28;">PSA</span>
+              <span class="term" style="background:#e8e0d0;color:#4a3c28;">Ratings</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="topic">
+          <div class="topic-title">New Media</div>
+          <div class="topic-body">
+            Refers to <strong>digital and internet-based platforms</strong> — websites, social media, podcasts, blogs,
+            and streaming services. Characteristics: interactive, participatory, on-demand, and
+            <strong>convergent</strong> (combines text, audio, video). Enables two-way communication between producers
+            and audiences.
+            <div class="key-terms">
+              <span class="term" style="background:#e8e0d0;color:#4a3c28;">Social media</span>
+              <span class="term" style="background:#e8e0d0;color:#4a3c28;">Convergence</span>
+              <span class="term" style="background:#e8e0d0;color:#4a3c28;">User-generated content</span>
+              <span class="term" style="background:#e8e0d0;color:#4a3c28;">Streaming</span>
+            </div>
+          </div>
+          <div class="remember-box"><b>Remember:</b> New media differs from traditional media in that it allows
+            audiences to become <strong>content creators</strong>, not just consumers.</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- MEDIA & INFO SOURCES -->
+    <div class="section-card visible open" data-group="sources" id="card-sources">
+      <div class="section-header" onclick="toggleCard('card-sources')">
+        <div class="section-icon" style="background:#dde8f0;">📚</div>
+        <span class="section-title">Media and Information Sources</span>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+
+        <div class="topic">
+          <div class="topic-title">Indigenous Sources</div>
+          <div class="topic-body">
+            Traditional, community-based sources of knowledge passed down through <strong>oral traditions, folklore,
+              rituals, and storytelling</strong>. These sources reflect the culture, values, and history of a local
+            community. They are often <strong>non-written</strong> and must be respected as valid and authentic forms of
+            information.
+            <div class="key-terms">
+              <span class="term" style="background:#dde8f0;color:#1a3a5c;">Oral tradition</span>
+              <span class="term" style="background:#dde8f0;color:#1a3a5c;">Folklore</span>
+              <span class="term" style="background:#dde8f0;color:#1a3a5c;">Cultural knowledge</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="topic">
+          <div class="topic-title">The Library</div>
+          <div class="topic-body">
+            A curated repository of information in <strong>print and digital formats</strong>. Libraries organize
+            resources using classification systems (e.g., Dewey Decimal). Key resources: books, journals, encyclopedias,
+            databases, and archives. Librarians assist users in <strong>information retrieval and evaluation</strong>.
+            <div class="key-terms">
+              <span class="term" style="background:#dde8f0;color:#1a3a5c;">Reference materials</span>
+              <span class="term" style="background:#dde8f0;color:#1a3a5c;">Dewey Decimal</span>
+              <span class="term" style="background:#dde8f0;color:#1a3a5c;">Database</span>
+              <span class="term" style="background:#dde8f0;color:#1a3a5c;">Archive</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="topic">
+          <div class="topic-title">Mass Media</div>
+          <div class="topic-body">
+            Technology used to reach a <strong>large audience simultaneously</strong>. Includes print, broadcast, and
+            new media. Mass media shapes public opinion, culture, and values. Functions: <strong>inform, educate,
+              entertain, persuade, and monitor</strong> society (surveillance function).
+            <div class="key-terms">
+              <span class="term" style="background:#dde8f0;color:#1a3a5c;">Agenda-setting</span>
+              <span class="term" style="background:#dde8f0;color:#1a3a5c;">Gatekeeping</span>
+              <span class="term" style="background:#dde8f0;color:#1a3a5c;">Framing</span>
+            </div>
+          </div>
+          <div class="remember-box"><b>Remember:</b> The <strong>5 functions of mass media</strong> are: Surveillance,
+            Correlation, Cultural transmission, Entertainment, and Mobilization.</div>
+        </div>
+
+        <div class="topic">
+          <div class="topic-title">The Internet</div>
+          <div class="topic-body">
+            A global network enabling access to vast amounts of information. The internet allows for <strong>search
+              engines, online databases, social networking, e-commerce, and communication</strong>. It democratizes
+            information but also introduces risks like <strong>misinformation, fake news, and digital divide</strong>.
+            <div class="key-terms">
+              <span class="term" style="background:#dde8f0;color:#1a3a5c;">Search engine</span>
+              <span class="term" style="background:#dde8f0;color:#1a3a5c;">Misinformation</span>
+              <span class="term" style="background:#dde8f0;color:#1a3a5c;">Digital divide</span>
+              <span class="term" style="background:#dde8f0;color:#1a3a5c;">Hypertext</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="topic">
+          <div class="topic-title">Evaluating Media and Information</div>
+          <div class="topic-body">
+            Use the <strong>CRAAP Test</strong> to evaluate sources:
+            <br><br>
+            <strong>C</strong> – Currency: Is the information recent?<br>
+            <strong>R</strong> – Relevance: Does it answer your question?<br>
+            <strong>A</strong> – Authority: Who wrote it? Are they credible?<br>
+            <strong>A</strong> – Accuracy: Is it factual and supported by evidence?<br>
+            <strong>P</strong> – Purpose: Why was it created? (inform, persuade, sell?)
+            <div class="key-terms">
+              <span class="term" style="background:#dde8f0;color:#1a3a5c;">CRAAP Test</span>
+              <span class="term" style="background:#dde8f0;color:#1a3a5c;">Primary source</span>
+              <span class="term" style="background:#dde8f0;color:#1a3a5c;">Secondary source</span>
+              <span class="term" style="background:#dde8f0;color:#1a3a5c;">Credibility</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- MEDIA LANGUAGE -->
+    <div class="section-card visible open" data-group="language" id="card-language">
+      <div class="section-header" onclick="toggleCard('card-language')">
+        <div class="section-icon" style="background:#e4dff5;">🔤</div>
+        <span class="section-title">Media and Information Languages</span>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+
+        <div class="topic">
+          <div class="topic-title">Codes, Forms, and Rules</div>
+          <div class="topic-body">
+            <strong>Codes</strong> are systems of signs and symbols that convey meaning. In media, codes are the
+            techniques used to communicate messages. <strong>Forms</strong> are structural patterns (e.g., news report,
+            documentary, advertisement). <strong>Rules</strong> are conventions that guide how media texts are
+            constructed and interpreted.
+          </div>
+        </div>
+
+        <div class="topic">
+          <div class="topic-title">Codes and Conventions</div>
+          <div class="topic-body">
+            <strong>Technical codes</strong> — camera angles, lighting, sound, editing (e.g., close-up = intimacy; low
+            angle = power).<br><br>
+            <strong>Symbolic codes</strong> — setting, costume, props, facial expressions, body language.<br><br>
+            <strong>Written codes</strong> — language style, font choice, headlines, captions.<br><br>
+            <strong>Conventions</strong> are accepted practices within a genre (e.g., horror films use dark lighting and
+            suspenseful music).
+            <div class="key-terms">
+              <span class="term" style="background:#e4dff5;color:#3a2a6e;">Denotation</span>
+              <span class="term" style="background:#e4dff5;color:#3a2a6e;">Connotation</span>
+              <span class="term" style="background:#e4dff5;color:#3a2a6e;">Semiotics</span>
+              <span class="term" style="background:#e4dff5;color:#3a2a6e;">Genre conventions</span>
+            </div>
+          </div>
+          <div class="remember-box"><b>Remember:</b> <strong>Denotation</strong> = literal meaning.
+            <strong>Connotation</strong> = implied/emotional meaning. A red rose denotes a flower; it connotes love or
+            danger.
+          </div>
+        </div>
+
+        <div class="topic">
+          <div class="topic-title">Categorizing Codes</div>
+          <div class="topic-body">
+            Codes are categorized into <strong>three main types</strong>:<br><br>
+            1. <strong>Technical codes</strong> — how media is produced (camera work, editing, sound)<br>
+            2. <strong>Symbolic/representational codes</strong> — how meaning is made through mise-en-scène<br>
+            3. <strong>Written/audio codes</strong> — language, dialogue, narration, text overlays
+          </div>
+        </div>
+
+        <div class="topic">
+          <div class="topic-title">Producers and Audiences</div>
+          <div class="topic-body">
+            <strong>Producers</strong> create media content with a specific message and purpose. They make choices about
+            codes and conventions to communicate to their target audience.<br><br>
+            <strong>Audiences</strong> decode media using their own cultural background, experiences, and values. Stuart
+            Hall's <strong>encoding/decoding model</strong> identifies three reading positions: <strong>dominant,
+              negotiated, and oppositional</strong>.
+            <div class="key-terms">
+              <span class="term" style="background:#e4dff5;color:#3a2a6e;">Encoding</span>
+              <span class="term" style="background:#e4dff5;color:#3a2a6e;">Decoding</span>
+              <span class="term" style="background:#e4dff5;color:#3a2a6e;">Stuart Hall</span>
+              <span class="term" style="background:#e4dff5;color:#3a2a6e;">Reception theory</span>
+            </div>
+          </div>
+          <div class="remember-box"><b>Remember:</b> <strong>Dominant</strong> = accepts the intended message.
+            <strong>Negotiated</strong> = partially accepts. <strong>Oppositional</strong> = rejects the message
+            entirely.
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- LEGAL & ETHICS -->
+    <div class="section-card visible open" data-group="ethics" id="card-ethics">
+      <div class="section-header" onclick="toggleCard('card-ethics')">
+        <div class="section-icon" style="background:#dff0e4;">⚖️</div>
+        <span class="section-title">Legal, Ethical, and Societal Issues</span>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+
+        <div class="topic">
+          <div class="topic-title">Copyright</div>
+          <div class="topic-body">
+            <strong>Copyright</strong> is a legal protection granted to creators of original works (text, images, music,
+            film). It gives the creator <strong>exclusive rights</strong> to reproduce, distribute, and profit from
+            their work. Copyright is automatic — no registration needed. Duration varies by country (commonly life of
+            author + 70 years).
+            <div class="key-terms">
+              <span class="term" style="background:#dff0e4;color:#1a4a2e;">Intellectual property</span>
+              <span class="term" style="background:#dff0e4;color:#1a4a2e;">Public domain</span>
+              <span class="term" style="background:#dff0e4;color:#1a4a2e;">Creative Commons</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="topic">
+          <div class="topic-title">Fair Use</div>
+          <div class="topic-body">
+            <strong>Fair use</strong> (or fair dealing) is a legal doctrine allowing limited use of copyrighted material
+            <strong>without permission</strong>, for purposes such as education, commentary, criticism, news reporting,
+            or parody. Four factors determine fair use:
+            <br><br>
+            1. <strong>Purpose</strong> — educational/non-commercial vs. commercial<br>
+            2. <strong>Nature</strong> — factual vs. creative work<br>
+            3. <strong>Amount</strong> — how much was used<br>
+            4. <strong>Effect</strong> — does it harm the market value?
+            <div class="key-terms">
+              <span class="term" style="background:#dff0e4;color:#1a4a2e;">Parody</span>
+              <span class="term" style="background:#dff0e4;color:#1a4a2e;">Criticism</span>
+              <span class="term" style="background:#dff0e4;color:#1a4a2e;">Attribution</span>
+            </div>
+          </div>
+          <div class="remember-box"><b>Remember:</b> Fair use is a <strong>defense</strong>, not a right. Always cite
+            your source even when fair use applies.</div>
+        </div>
+
+        <div class="topic">
+          <div class="topic-title">Plagiarism</div>
+          <div class="topic-body">
+            <strong>Plagiarism</strong> is presenting someone else's ideas, words, or work as your own <strong>without
+              proper attribution</strong>. It is both an ethical violation and, in many cases, a legal one. Types
+            include: <strong>direct plagiarism</strong> (copy-paste), <strong>self-plagiarism</strong> (reusing your own
+            old work), <strong>mosaic plagiarism</strong> (mixing sources), and <strong>accidental plagiarism</strong>
+            (improper citation).
+            <div class="key-terms">
+              <span class="term" style="background:#dff0e4;color:#1a4a2e;">Citation</span>
+              <span class="term" style="background:#dff0e4;color:#1a4a2e;">Paraphrase</span>
+              <span class="term" style="background:#dff0e4;color:#1a4a2e;">Academic integrity</span>
+            </div>
+          </div>
+          <div class="remember-box"><b>Remember:</b> To avoid plagiarism — <strong>Quote, Paraphrase, or
+              Summarize</strong> — and always cite the source.</div>
+        </div>
+
+        <div class="topic">
+          <div class="topic-title">Netiquette</div>
+          <div class="topic-body">
+            <strong>Netiquette</strong> (internet etiquette) refers to the rules of respectful and responsible behavior
+            online. Core principles:<br><br>
+            • <strong>Be respectful</strong> — no flaming, trolling, or cyberbullying<br>
+            • <strong>Protect privacy</strong> — don't share others' personal info<br>
+            • <strong>Use proper language</strong> — avoid ALL CAPS (perceived as shouting)<br>
+            • <strong>Give credit</strong> — cite sources, don't plagiarize<br>
+            • <strong>Verify before sharing</strong> — fact-check to avoid spreading misinformation
+            <div class="key-terms">
+              <span class="term" style="background:#dff0e4;color:#1a4a2e;">Cyberbullying</span>
+              <span class="term" style="background:#dff0e4;color:#1a4a2e;">Digital citizenship</span>
+              <span class="term" style="background:#dff0e4;color:#1a4a2e;">Online privacy</span>
+              <span class="term" style="background:#dff0e4;color:#1a4a2e;">Flaming</span>
+            </div>
+          </div>
+          <div class="remember-box"><b>Remember:</b> The Golden Rule of Netiquette — <strong>Treat others online as you
+              would in real life.</strong></div>
+        </div>
+
+      </div>
+    </div>
+
+    <button class="quiz-btn"
+      onclick="sendPrompt('Quiz me on the MIAL topics — ask me 5 questions one at a time, covering print media, information sources, media language, and ethics.')">
+      Test yourself with a quiz ↗
+    </button>
+
+  </div>
+</div>
+
+<script>
+  function toggleCard(id) {
+    const card = document.getElementById(id);
+    card.classList.toggle('open');
+  }
+
+  function filterSection(group, btn) {
+    document.querySelectorAll('.toc-pill').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.section-card').forEach(card => {
+      if (card.dataset.group === group) {
+        card.classList.add('visible');
+        card.classList.add('open');
+      } else {
+        card.classList.remove('visible');
+      }
+    });
+  }
+
+  function showAll(btn) {
+    document.querySelectorAll('.toc-pill').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.section-card').forEach(card => {
+      card.classList.add('visible');
+      card.classList.add('open');
+    });
+  }
+</script>
